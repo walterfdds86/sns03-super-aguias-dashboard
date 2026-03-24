@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SNS 03 — SUPER ÁGUIAS | FUNIL DASHBOARD</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --card: #111111;
+    --border: #222222;
+    --green: #00ff88;
+    --red: #ff3b3b;
+    --yellow: #ffcc00;
+    --blue: #00aaff;
+    --purple: #aa66ff;
+    --white: #ffffff;
+    --gray: #666666;
+    --gray2: #333333;
+    --text-muted: #cccccc;
+    --text-body: #aaaaaa;
+  }
+
+  body.light {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --border: #dde1e8;
+    --green: #007a42;
+    --red: #cc2020;
+    --yellow: #996600;
+    --blue: #0055bb;
+    --purple: #6633bb;
+    --white: #111111;
+    --gray: #777777;
+    --gray2: #e0e3e8;
+    --text-muted: #444444;
+    --text-body: #555555;
+  }
+
+  body.light .kpi-value.green { color: #007a42; }
+  body.light .kpi-value.red   { color: #cc2020; }
+  body.light .kpi-value.yellow{ color: #996600; }
+  body.light .kpi-value.blue  { color: #0055bb; }
+  body.light .kpi-value.purple{ color: #6633bb; }
+  body.light .kpi-value.white { color: #111111; }
+  body.light .td-green { color: #007a42; }
+  body.light .td-red   { color: #cc2020; }
+  body.light .td-yellow{ color: #996600; }
+  body.light .td-blue  { color: #0055bb; }
+  body.light .td-purple{ color: #6633bb; }
+  body.light .td-gray  { color: #999999; }
+  body.light td { color: #333333; }
+  body.light th { background: #f7f8fa; color: #888888; }
+  body.light .alert-text { color: #555555; }
+  body.light .rec-list li { color: #444444; }
+  body.light .verdict-metric .metric-name { color: #888888; }
+  body.light .footer { color: #bbbbbb; }
+  body.light .badge.win  { background: rgba(0,122,66,0.1);  color: #007a42; border-color: rgba(0,122,66,0.3); }
+  body.light .badge.lose { background: rgba(204,32,32,0.1); color: #cc2020; border-color: rgba(204,32,32,0.3); }
+  body.light .badge.warn { background: rgba(153,102,0,0.1); color: #996600; border-color: rgba(153,102,0,0.3); }
+  body.light .status-dot { background: #007a42; }
+  body.light tr:hover td { background: rgba(0,0,0,0.02); }
+  body.light [style*="color:#ccc"]  { color: #444444 !important; }
+  body.light [style*="color:#aaa"]  { color: #555555 !important; }
+  body.light [style*="color:#fff"]  { color: #111111 !important; }
+  body.light [style*="color:#ffffff"] { color: #111111 !important; }
+  body.light [style*="background:var(--surface)"] { background: #f7f8fa; }
+  body.light [style*="background:#0d0d0d"] { background: #f7f8fa !important; }
+  body.light [style*="background:rgba(0,255,136,0.06)"]  { background: rgba(0,122,66,0.06)  !important; }
+  body.light [style*="background:rgba(0,255,136,0.04)"]  { background: rgba(0,122,66,0.05)  !important; }
+  body.light [style*="background:rgba(0,255,136,0.1)"]   { background: rgba(0,122,66,0.1)   !important; }
+  body.light [style*="background:rgba(255,59,59,0.06)"]  { background: rgba(204,32,32,0.06) !important; }
+  body.light [style*="background:rgba(255,59,59,0.1)"]   { background: rgba(204,32,32,0.08) !important; }
+  body.light [style*="background:rgba(255,204,0,0.06)"]  { background: rgba(153,102,0,0.06) !important; }
+  body.light [style*="background:rgba(0,170,255,0.06)"]  { background: rgba(0,85,187,0.06)  !important; }
+  body.light [style*="background:rgba(0,170,255,0.05)"]  { background: rgba(0,85,187,0.05)  !important; }
+  body.light [style*="background:rgba(170,102,255,0.05)"]{ background: rgba(102,51,187,0.05)!important; }
+  body.light [style*="border:1px solid rgba(0,255,136"]   { border-color: rgba(0,122,66,0.3) !important; }
+  body.light [style*="border:1px solid rgba(255,59,59"]   { border-color: rgba(204,32,32,0.3)!important; }
+  body.light [style*="border:1px solid rgba(255,204,0"]   { border-color: rgba(153,102,0,0.3)!important; }
+  body.light [style*="border:1px solid rgba(0,170,255"]   { border-color: rgba(0,85,187,0.3) !important; }
+  body.light [style*="border:1px solid rgba(170,102,255"] { border-color: rgba(102,51,187,0.3)!important;}
+  body.light [style*="border-left: 3px solid var(--red)"]   { border-left-color: #cc2020 !important; }
+  body.light [style*="border-left: 3px solid var(--yellow)"]{ border-left-color: #996600 !important; }
+  body.light [style*="border-left: 3px solid var(--green)"] { border-left-color: #007a42 !important; }
+  body.light [style*="color:var(--green)"]  { color: #007a42 !important; }
+  body.light [style*="color:var(--red)"]    { color: #cc2020 !important; }
+  body.light [style*="color:var(--yellow)"] { color: #996600 !important; }
+  body.light [style*="color:var(--gray)"]   { color: #777777 !important; }
+  body.light [style*="color:#00ff88"] { color: #007a42 !important; }
+  body.light [style*="color:#ff3b3b"] { color: #cc2020 !important; }
+  body.light [style*="color:#ffcc00"] { color: #996600 !important; }
+  body.light [style*="color:#00aaff"] { color: #0055bb !important; }
+  body.light [style*="color:#aa66ff"] { color: #6633bb !important; }
+
+  /* TOGGLE BUTTON */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+    margin-top: 10px;
+  }
+  .theme-toggle:hover { border-color: var(--gray); color: var(--white); }
+  .toggle-track {
+    width: 32px; height: 17px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .toggle-track.on { background: var(--blue); }
+  body.light .toggle-track.on { background: #0055bb; }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 13px; height: 13px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.2s;
+  }
+  .toggle-track.on .toggle-thumb { left: 17px; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+  .header-left h1 {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gray);
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 6px;
+  }
+  .header-left h2 {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+  .header-right {
+    text-align: right;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.8;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gray);
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+    margin-top: 36px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* KPI GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .kpi-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+  }
+  .kpi-card.pt::before { background: var(--blue); }
+  .kpi-card.es::before { background: var(--purple); }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.red::before { background: var(--red); }
+  .kpi-card.yellow::before { background: var(--yellow); }
+
+  .kpi-label {
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 8px;
+  }
+  .kpi-flag {
+    font-size: 9px;
+    color: var(--gray);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.red { color: var(--red); }
+  .kpi-value.yellow { color: var(--yellow); }
+  .kpi-value.blue { color: var(--blue); }
+  .kpi-value.purple { color: var(--purple); }
+  .kpi-value.white { color: var(--white); }
+
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: 8px;
+  }
+  .badge.win { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+  .badge.lose { background: rgba(255,59,59,0.15); color: var(--red); border: 1px solid rgba(255,59,59,0.3); }
+  .badge.warn { background: rgba(255,204,0,0.15); color: var(--yellow); border: 1px solid rgba(255,204,0,0.3); }
+
+  /* CHARTS */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .chart-title {
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+  }
+  .chart-container {
+    position: relative;
+    height: 220px;
+  }
+
+  /* TABLES */
+  .table-wrapper {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+  th {
+    background: var(--surface);
+    color: var(--gray);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(34,34,34,0.6);
+    color: #cccccc;
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .td-green { color: var(--green); font-weight: 700; }
+  .td-red { color: var(--red); font-weight: 700; }
+  .td-yellow { color: var(--yellow); font-weight: 700; }
+  .td-blue { color: var(--blue); }
+  .td-purple { color: var(--purple); }
+  .td-gray { color: var(--gray); }
+
+  .teste-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .t1 { background: rgba(0,170,255,0.15); color: #00aaff; border: 1px solid rgba(0,170,255,0.3); }
+  .t2 { background: rgba(255,204,0,0.15); color: #ffcc00; border: 1px solid rgba(255,204,0,0.3); }
+  .t3 { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid rgba(0,255,136,0.3); }
+  .tmix { background: rgba(170,102,255,0.15); color: #aa66ff; border: 1px solid rgba(170,102,255,0.3); }
+
+  /* ALERTS */
+  .alert-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .alert-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .alert-icon {
+    font-size: 20px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .alert-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-family: 'Space Mono', monospace;
+  }
+  .alert-title.red { color: var(--red); }
+  .alert-title.yellow { color: var(--yellow); }
+  .alert-title.green { color: var(--green); }
+  .alert-text {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* TEST VERDICT */
+  .verdict-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .verdict-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .verdict-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .verdict-test {
+    font-size: 18px;
+    font-weight: 900;
+    font-family: 'Space Mono', monospace;
+  }
+  .verdict-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+  }
+  .verdict-metric:last-child { border-bottom: none; }
+  .metric-name { color: var(--gray); font-family: 'Space Mono', monospace; font-size: 10px; }
+  .metric-val { font-weight: 700; font-family: 'Space Mono', monospace; }
+
+  /* RECOMMENDATION BOX */
+  .rec-box {
+    background: rgba(0,255,136,0.04);
+    border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 4px;
+    padding: 24px;
+  }
+  .rec-title {
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 3px;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .rec-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rec-list li {
+    font-size: 13px;
+    color: #cccccc;
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .rec-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-family: 'Space Mono', monospace;
+  }
+  .rec-list li strong { color: var(--white); }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 32px 0; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--gray2);
+    font-family: 'Space Mono', monospace;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>Super Negócio SNS 03 &nbsp;/&nbsp; Análise de Funil</h1>
+    <h2>SUPER ÁGUIAS — DASHBOARD</h2>
+  </div>
+  <div class="header-right">
+    <div><span class="status-dot"></span>PERÍODO: 17/03 → 23/03/2026</div>
+    <div>FUNIL PT (BR) &nbsp;&bull;&nbsp; FUNIL ES (SP)</div>
+    <div>3 VARIAÇÕES DE TESTE ANALISADAS</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+      <div class="toggle-track" id="toggleTrack"><div class="toggle-thumb"></div></div>
+      <span id="themeLabel">MODO DIURNO</span>
+    </button>
+  </div>
+</div>
+
+<!-- KPIs GLOBAIS -->
+<div class="section-title">Visão Geral do Período</div>
+<div class="kpi-grid">
+  <div class="kpi-card pt">
+    <div class="kpi-label">Investimento Total</div>
+    <div class="kpi-flag">🇧🇷 PORTUGUÊS</div>
+    <div class="kpi-value blue">R$18.601</div>
+    <div class="kpi-sub">7 dias de tráfego</div>
+  </div>
+  <div class="kpi-card es">
+    <div class="kpi-label">Investimento Total</div>
+    <div class="kpi-flag">🌎 ESPANHOL</div>
+    <div class="kpi-value purple">R$7.564</div>
+    <div class="kpi-sub">7 dias de tráfego</div>
+  </div>
+  <div class="kpi-card pt">
+    <div class="kpi-label">Total Leads Cadastrados</div>
+    <div class="kpi-flag">🇧🇷 PORTUGUÊS</div>
+    <div class="kpi-value blue">7.817</div>
+    <div class="kpi-sub">CPL médio R$2,38</div>
+  </div>
+  <div class="kpi-card es">
+    <div class="kpi-label">Total Leads Cadastrados</div>
+    <div class="kpi-flag">🌎 ESPANHOL</div>
+    <div class="kpi-value purple">4.798</div>
+    <div class="kpi-sub">CPL médio R$1,58 ✓</div>
+  </div>
+</div>
+
+<div style="margin-top:12px;" class="kpi-grid">
+  <div class="kpi-card green">
+    <div class="kpi-label">Leads na Comunidade PT</div>
+    <div class="kpi-flag">🇧🇷 PORTUGUÊS</div>
+    <div class="kpi-value green">3.835</div>
+    <div class="kpi-sub">49,1% dos leads</div>
+    <div class="badge win">CPL COM R$4,85</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-label">Leads na Comunidade ES</div>
+    <div class="kpi-flag">🌎 ESPANHOL</div>
+    <div class="kpi-value green">2.106</div>
+    <div class="kpi-sub">43,9% dos leads</div>
+    <div class="badge win">CPL COM R$3,59</div>
+  </div>
+  <div class="kpi-card yellow">
+    <div class="kpi-label">Compras VIP PT</div>
+    <div class="kpi-flag">🇧🇷 PORTUGUÊS</div>
+    <div class="kpi-value yellow">43</div>
+    <div class="kpi-sub">4,4% conv. checkout</div>
+    <div class="badge win">R$433 / VIP</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-label">Compras VIP ES</div>
+    <div class="kpi-flag">🌎 ESPANHOL</div>
+    <div class="kpi-value red">16</div>
+    <div class="kpi-sub">3,1% conv. checkout</div>
+    <div class="badge lose">R$473 / VIP</div>
+  </div>
+</div>
+
+<!-- CHARTS ROW 1 -->
+<div class="section-title">CPL Cadastro e Comunidade — Dia a Dia</div>
+<div class="chart-grid">
+  <div class="chart-card">
+    <div class="chart-title">🇧🇷 PT — CPL Cadastro vs Comunidade</div>
+    <div class="chart-container">
+      <canvas id="cplPT"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">🌎 ES — CPL Cadastro vs Comunidade</div>
+    <div class="chart-container">
+      <canvas id="cplES"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- CHARTS ROW 2 -->
+<div class="section-title">Leads, Comunidade e VIP — Volume Diário</div>
+<div class="chart-grid">
+  <div class="chart-card">
+    <div class="chart-title">🇧🇷 PT — Funil de Volume</div>
+    <div class="chart-container">
+      <canvas id="volPT"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">🌎 ES — Funil de Volume</div>
+    <div class="chart-container">
+      <canvas id="volES"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- TAXA ENTRADA COMUNIDADE -->
+<div class="section-title">Taxa de Entrada na Comunidade por Dia (%)</div>
+<div class="chart-card" style="max-height:240px;">
+  <div class="chart-title">PT vs ES — % Leads que Entraram na Comunidade</div>
+  <div class="chart-container" style="height:190px;">
+    <canvas id="taxaCom"></canvas>
+  </div>
+</div>
+
+<!-- TABELA DIA A DIA PT -->
+<div class="section-title">Tabela Detalhada — Funil Português 🇧🇷</div>
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Teste</th>
+        <th>Investimento</th>
+        <th>Cliques</th>
+        <th>Conv.</th>
+        <th>Leads</th>
+        <th>Comunidade</th>
+        <th>% Entrada</th>
+        <th>CPL Cad.</th>
+        <th>CPL Com.</th>
+        <th>Checkout</th>
+        <th>VIP</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>17/03</td>
+        <td><span class="teste-badge t1">T1</span></td>
+        <td>R$1.675,52</td>
+        <td>2.809</td>
+        <td>37,72%</td>
+        <td>846</td>
+        <td>339</td>
+        <td class="td-yellow">40,1%</td>
+        <td>R$1,98</td>
+        <td>R$4,94</td>
+        <td>65</td>
+        <td class="td-yellow">4</td>
+      </tr>
+      <tr>
+        <td>18/03</td>
+        <td><span class="teste-badge t1">T1</span></td>
+        <td>R$2.693,91</td>
+        <td>4.821</td>
+        <td>36,53%</td>
+        <td>1.227</td>
+        <td>552</td>
+        <td class="td-yellow">45,0%</td>
+        <td>R$2,20</td>
+        <td>R$4,88</td>
+        <td>114</td>
+        <td class="td-yellow">4</td>
+      </tr>
+      <tr>
+        <td>19/03</td>
+        <td><span class="teste-badge t2">T2</span></td>
+        <td>R$1.980,52</td>
+        <td>3.780</td>
+        <td>51,55%</td>
+        <td>982</td>
+        <td class="td-red">132</td>
+        <td class="td-red">13,4% ⚠</td>
+        <td>R$2,02</td>
+        <td class="td-red">R$15,00 ⚠</td>
+        <td class="td-green">212</td>
+        <td class="td-green">10 ★</td>
+      </tr>
+      <tr>
+        <td>20/03</td>
+        <td><span class="teste-badge tmix">T2→T3</span></td>
+        <td>R$1.963,11</td>
+        <td>3.507</td>
+        <td>28,12%</td>
+        <td>839</td>
+        <td>294</td>
+        <td class="td-yellow">35,0%</td>
+        <td class="td-red">R$2,34</td>
+        <td>R$6,68</td>
+        <td>79</td>
+        <td class="td-yellow">5</td>
+      </tr>
+      <tr>
+        <td>21/03</td>
+        <td><span class="teste-badge t3">T3</span></td>
+        <td>R$2.096,54</td>
+        <td>3.535</td>
+        <td>32,33%</td>
+        <td>998</td>
+        <td class="td-green">649</td>
+        <td class="td-green">65,0% ✓</td>
+        <td>R$2,10</td>
+        <td class="td-green">R$3,23 ✓</td>
+        <td>115</td>
+        <td class="td-yellow">4</td>
+      </tr>
+      <tr>
+        <td>22/03</td>
+        <td><span class="teste-badge t3">T3</span></td>
+        <td class="td-red">R$4.158,59 ⚠</td>
+        <td>5.811</td>
+        <td>29,33%</td>
+        <td class="td-green">1.471</td>
+        <td class="td-green">953</td>
+        <td class="td-green">64,8% ✓</td>
+        <td class="td-red">R$2,83</td>
+        <td>R$4,36</td>
+        <td class="td-green">201</td>
+        <td class="td-yellow">9</td>
+      </tr>
+      <tr>
+        <td>23/03</td>
+        <td><span class="teste-badge t3">T3</span></td>
+        <td>R$4.033,29</td>
+        <td>6.053</td>
+        <td>27,99%</td>
+        <td class="td-green">1.454</td>
+        <td class="td-green">916</td>
+        <td class="td-green">63,0% ✓</td>
+        <td class="td-yellow">R$2,77</td>
+        <td>R$4,40</td>
+        <td class="td-green">188</td>
+        <td class="td-green">7 ★</td>
+      </tr>
+      <tr style="background:rgba(0,170,255,0.05); border-top: 1px solid #333;">
+        <td style="font-weight:700; color:#fff;">TOTAL</td>
+        <td>—</td>
+        <td style="font-weight:700; color:#00aaff;">R$18.601,48</td>
+        <td style="font-weight:700;">30.316</td>
+        <td style="font-weight:700;">—</td>
+        <td style="font-weight:700; color:#00aaff;">7.817</td>
+        <td style="font-weight:700; color:#00ff88;">3.835</td>
+        <td style="font-weight:700; color:#00ff88;">49,1%</td>
+        <td style="font-weight:700;">R$2,38</td>
+        <td style="font-weight:700;">R$4,85</td>
+        <td style="font-weight:700;">974</td>
+        <td style="font-weight:700; color:#ffcc00;">43</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- TABELA DIA A DIA ES -->
+<div class="section-title">Tabela Detalhada — Funil Espanhol 🌎</div>
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Teste</th>
+        <th>Investimento</th>
+        <th>Cliques</th>
+        <th>Conv.</th>
+        <th>Leads</th>
+        <th>Comunidade</th>
+        <th>% Entrada</th>
+        <th>CPL Cad.</th>
+        <th>CPL Com.</th>
+        <th>Checkout</th>
+        <th>VIP</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>17/03</td>
+        <td><span class="teste-badge t1">T1</span></td>
+        <td>R$1.070,10</td>
+        <td>3.629</td>
+        <td>29,79%</td>
+        <td>846</td>
+        <td>212</td>
+        <td class="td-red">25,1%</td>
+        <td class="td-green">R$1,26 ✓</td>
+        <td>R$5,05</td>
+        <td>38</td>
+        <td class="td-red">0</td>
+      </tr>
+      <tr>
+        <td>18/03</td>
+        <td><span class="teste-badge t1">T1</span></td>
+        <td>R$881,15</td>
+        <td>3.826</td>
+        <td>19,27%</td>
+        <td>591</td>
+        <td>300</td>
+        <td class="td-yellow">50,8%</td>
+        <td class="td-green">R$1,49 ✓</td>
+        <td class="td-green">R$2,94 ✓</td>
+        <td>96</td>
+        <td class="td-yellow">4</td>
+      </tr>
+      <tr>
+        <td>19/03</td>
+        <td><span class="teste-badge t2">T2</span></td>
+        <td>R$883,98</td>
+        <td>2.642</td>
+        <td>19,17%</td>
+        <td>588</td>
+        <td class="td-red">63</td>
+        <td class="td-red">10,7% ⚠</td>
+        <td class="td-green">R$1,50 ✓</td>
+        <td class="td-red">R$14,03 ⚠</td>
+        <td class="td-green">115</td>
+        <td class="td-green">5 ★</td>
+      </tr>
+      <tr>
+        <td>20/03</td>
+        <td><span class="teste-badge tmix">T2→T3</span></td>
+        <td>R$1.023,40</td>
+        <td>2.979</td>
+        <td>25,68%</td>
+        <td>670</td>
+        <td>251</td>
+        <td class="td-yellow">37,5%</td>
+        <td>R$1,73</td>
+        <td>R$4,08</td>
+        <td>47</td>
+        <td class="td-yellow">1</td>
+      </tr>
+      <tr>
+        <td>21/03</td>
+        <td><span class="teste-badge t3">T3</span></td>
+        <td>R$1.010,56</td>
+        <td>2.643</td>
+        <td>27,69%</td>
+        <td>626</td>
+        <td class="td-green">369</td>
+        <td class="td-green">59,0% ✓</td>
+        <td>R$1,61</td>
+        <td class="td-green">R$2,74 ✓</td>
+        <td>66</td>
+        <td class="td-yellow">2</td>
+      </tr>
+      <tr>
+        <td>22/03</td>
+        <td><span class="teste-badge t3">T3</span></td>
+        <td>R$1.140,58</td>
+        <td>2.795</td>
+        <td>29,14%</td>
+        <td>690</td>
+        <td class="td-green">409</td>
+        <td class="td-green">59,3% ✓</td>
+        <td>R$1,65</td>
+        <td class="td-green">R$2,79 ✓</td>
+        <td>87</td>
+        <td class="td-red">0 ⚠</td>
+      </tr>
+      <tr>
+        <td>23/03</td>
+        <td><span class="teste-badge t3">T3</span></td>
+        <td>R$1.554,56</td>
+        <td>3.443</td>
+        <td>25,58%</td>
+        <td class="td-green">787</td>
+        <td class="td-green">502</td>
+        <td class="td-green">63,8% ✓</td>
+        <td class="td-yellow">R$1,98</td>
+        <td class="td-green">R$3,10 ✓</td>
+        <td>73</td>
+        <td class="td-green">4 ★</td>
+      </tr>
+      <tr style="background:rgba(170,102,255,0.05); border-top: 1px solid #333;">
+        <td style="font-weight:700; color:#fff;">TOTAL</td>
+        <td>—</td>
+        <td style="font-weight:700; color:#aa66ff;">R$7.564,33</td>
+        <td style="font-weight:700;">21.957</td>
+        <td style="font-weight:700;">—</td>
+        <td style="font-weight:700; color:#aa66ff;">4.798</td>
+        <td style="font-weight:700; color:#00ff88;">2.106</td>
+        <td style="font-weight:700; color:#00ff88;">43,9%</td>
+        <td style="font-weight:700; color:#00ff88;">R$1,58</td>
+        <td style="font-weight:700; color:#00ff88;">R$3,59</td>
+        <td style="font-weight:700;">522</td>
+        <td style="font-weight:700; color:#ffcc00;">16</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- VEREDICTO POR TESTE -->
+<div class="section-title">Veredicto por Teste</div>
+<div class="verdict-grid">
+  <div class="verdict-card">
+    <div class="verdict-header">
+      <div class="verdict-test" style="color:#00aaff;">TESTE 1</div>
+      <span class="badge warn">MÉDIO</span>
+    </div>
+    <p style="font-size:11px; color:var(--gray); font-family:'Space Mono',monospace; margin-bottom:14px;">Captura → API → Links + VIP pela API</p>
+    <div class="verdict-metric">
+      <span class="metric-name">CPL CADASTRO PT</span>
+      <span class="metric-val" style="color:#00aaff;">R$1,98–2,20</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">CPL CADASTRO ES</span>
+      <span class="metric-val" style="color:#00ff88;">R$1,26–1,49 ✓</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">ENTRADA COM. PT</span>
+      <span class="metric-val" style="color:#ffcc00;">40–45%</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">ENTRADA COM. ES</span>
+      <span class="metric-val" style="color:#ff3b3b;">25–50% (instável)</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">VIP TOTAL</span>
+      <span class="metric-val">PT:8 / ES:4</span>
+    </div>
+  </div>
+
+  <div class="verdict-card" style="border-color:rgba(255,204,0,0.3);">
+    <div class="verdict-header">
+      <div class="verdict-test" style="color:#ffcc00;">TESTE 2</div>
+      <span class="badge warn">TRADEOFF</span>
+    </div>
+    <p style="font-size:11px; color:var(--gray); font-family:'Space Mono',monospace; margin-bottom:14px;">Captura → Obrigado vende VIP → API link grupo</p>
+    <div class="verdict-metric">
+      <span class="metric-name">CPL CADASTRO PT</span>
+      <span class="metric-val" style="color:#00ff88;">R$2,02 ✓</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">CPL CADASTRO ES</span>
+      <span class="metric-val" style="color:#00ff88;">R$1,50 ✓</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">ENTRADA COM. PT</span>
+      <span class="metric-val" style="color:#ff3b3b;">13,4% ⚠ COLAPSO</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">ENTRADA COM. ES</span>
+      <span class="metric-val" style="color:#ff3b3b;">10,7% ⚠ COLAPSO</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">VIP (melhor dia)</span>
+      <span class="metric-val" style="color:#00ff88;">PT:10 / ES:5 ★</span>
+    </div>
+  </div>
+
+  <div class="verdict-card" style="border-color:rgba(0,255,136,0.3);">
+    <div class="verdict-header">
+      <div class="verdict-test" style="color:#00ff88;">TESTE 3</div>
+      <span class="badge win">VENCEDOR ✓</span>
+    </div>
+    <p style="font-size:11px; color:var(--gray); font-family:'Space Mono',monospace; margin-bottom:14px;">Captura → Obrigado pro grupo → API link VIP</p>
+    <div class="verdict-metric">
+      <span class="metric-name">CPL CADASTRO PT</span>
+      <span class="metric-val" style="color:#ffcc00;">R$2,10–2,83</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">CPL CADASTRO ES</span>
+      <span class="metric-val" style="color:#00ff88;">R$1,61–1,98 ✓</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">ENTRADA COM. PT</span>
+      <span class="metric-val" style="color:#00ff88;">51–65% ✓ ESTÁVEL</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">ENTRADA COM. ES</span>
+      <span class="metric-val" style="color:#00ff88;">57–59% ✓ ESTÁVEL</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">VIP PT (21/22/23)</span>
+      <span class="metric-val" style="color:#00ff88;">4 / 9 / 7 = 20 total ↑</span>
+    </div>
+    <div class="verdict-metric">
+      <span class="metric-name">VIP ES (21/22/23)</span>
+      <span class="metric-val" style="color:#ffcc00;">2 / 0 / 4 = 6 total</span>
+    </div>
+  </div>
+</div>
+
+<!-- ALERTAS -->
+<div class="section-title">Alertas Críticos</div>
+<div class="alert-grid">
+  <div class="alert-card" style="border-left: 3px solid var(--yellow);">
+    <div class="alert-icon">⚠️</div>
+    <div>
+      <div class="alert-title yellow">ES — 22/03 zerou VIP, 23/03 recuperou</div>
+      <div class="alert-text">22/03: 87 cliques no checkout → <strong style="color:#ff3b3b;">0 compras</strong> — ainda é um anomalia<br>23/03: 73 cliques no checkout → <strong style="color:#00ff88;">4 compras (5,5% conv.)</strong> — recuperação confirmada no T3 ES<br><br>A recuperação no dia 23/03 descarta falha técnica total. O dia 22/03 pode ter sido uma instabilidade pontual ou variação natural de volume baixo. <strong style="color:#ffcc00;">Monitorar os próximos dias</strong> para confirmar estabilidade.</div>
+    </div>
+  </div>
+  <div class="alert-card" style="border-left: 3px solid var(--red);">
+    <div class="alert-icon">🔴</div>
+    <div>
+      <div class="alert-title red">19/03 — CPL Comunidade explodiu nos 2 funis</div>
+      <div class="alert-text">PT: R$15,00 por lead na comunidade<br>ES: R$14,03 por lead na comunidade<br><br>Causado pelo Teste 2: página de obrigado vendia VIP, não mandava ao grupo. <strong style="color:#ffcc00;">41% do budget do dia desperdiçado</strong> em leads que não entraram na comunidade.</div>
+    </div>
+  </div>
+  <div class="alert-card" style="border-left: 3px solid var(--yellow);">
+    <div class="alert-icon">⚠️</div>
+    <div>
+      <div class="alert-title yellow">22/03 PT — Budget descontrolado</div>
+      <div class="alert-text">R$4.158,59 investidos (2,6x a média dos outros dias). CPL subiu para R$2,83 — o pior do período. Volume aumentou mas eficiência caiu. <strong style="color:#ffcc00;">Verificar se houve mudança manual de budget</strong> ou leilão inflacionado.</div>
+    </div>
+  </div>
+  <div class="alert-card" style="border-left: 3px solid var(--yellow);">
+    <div class="alert-icon">⚙️</div>
+    <div>
+      <div class="alert-title yellow">Follow-up D+2 — Confirmado como gap</div>
+      <div class="alert-text">51% dos leads PT e 56% dos leads ES <strong style="color:#ffcc00;">não entraram na comunidade</strong> mesmo no melhor teste (T3). A sequência de follow-up via Utility (API) precisa estar ativa e enviando mensagem 48h após o cadastro para quem ainda não entrou.</div>
+    </div>
+  </div>
+</div>
+
+<!-- RECOMENDAÇÕES -->
+<div class="section-title">Plano de Ação — Próximos Passos</div>
+<div class="rec-box">
+  <div class="rec-title">→ Ações Prioritárias</div>
+  <ul class="rec-list">
+    <li><strong>MANTER TESTE 3 nos dois funis (PT e ES)</strong> — Melhor CPL comunidade, melhor taxa de entrada, consistência comprovada em 3 dias. É o funil vencedor.</li>
+    <li><strong>MONITORAR VIP ES — dia 22/03 foi anomalia pontual.</strong> 87 cliques no checkout e 0 vendas no dia 22/03, mas 23/03 recuperou com 2 vendas em 29 cliques (6,9% de conversão — melhor taxa do T3 no ES). Não é falha técnica sistêmica. Acompanhar os próximos dias para confirmar se a conversão se estabiliza acima de 5%.</li>
+    <li><strong>Ativar follow-up D+2 via Utility (API)</strong> — Enviar mensagem para quem se cadastrou mas ainda não entrou na comunidade. Com ~40–59% fora do grupo, o potencial de recuperação é enorme.</li>
+    <li><strong>Revisar a sequência de mensagens pós-cadastro do ES</strong> — O mercado hispânico tem CPL mais barato mas converte menos em VIP. A oferta pode precisar de copy adaptada, não só traduzida.</li>
+    <li><strong>Controlar budget do PT</strong> — Não subir acima de R$2.500/dia sem monitorar o CPL em tempo real. O salto para R$4.158 no dia 22 não trouxe eficiência proporcional.</li>
+  </ul>
+</div>
+
+<!-- RESPOSTAS AO BRUNO -->
+<div class="section-title">Respostas às Perguntas do Bruno</div>
+
+<!-- MENSAGEM 01 -->
+<div style="background:var(--card); border:1px solid var(--border); border-radius:4px; margin-bottom:16px; overflow:hidden;">
+  <div style="background:#0d0d0d; border-bottom:1px solid var(--border); padding:14px 20px; display:flex; align-items:center; gap:14px;">
+    <div style="background:rgba(0,170,255,0.15); border:1px solid rgba(0,170,255,0.3); border-radius:2px; padding:3px 10px; font-family:'Space Mono',monospace; font-size:10px; color:#00aaff; font-weight:700;">MENSAGEM 01</div>
+    <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gray);">Qual funil traz mais lead pro grupo com menor custo? O último (T3)?</div>
+  </div>
+  <div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div>
+      <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--gray); letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;">Pergunta do Bruno</div>
+      <div style="font-size:13px; color:#aaa; line-height:1.7; font-style:italic; border-left:2px solid var(--border); padding-left:14px;">
+        "Nenhum deles chegou numa experiência VIP que reduza consideravelmente o preço do lead. No português, a melhor situação foi diminuir 40 centavos. Qual funil está trazendo o lead mais barato? Estou achando que é o último. No espanhol, a situação ficou pior — nenhum que vendeu bem. Ver qual dos funis está trazendo mais lead para o grupo a um preço melhor e manter os dois vencedores."
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--green); letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;">→ Resposta baseada nos dados</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="background:rgba(0,255,136,0.06); border:1px solid rgba(0,255,136,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--green); margin-bottom:6px;">🇧🇷 PORTUGUÊS — CONFIRMADO: T3 VENCEDOR</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">Teste 3 tem o <strong style="color:#fff;">melhor CPL comunidade</strong> do período: <strong style="color:#00ff88;">R$3,23</strong> (vs R$4,88 do T1). Taxa de entrada na comunidade de <strong style="color:#00ff88;">65%</strong> — a mais alta de todos os testes. Dia 23/03: <strong style="color:#00ff88;">7 VIP em 96 checkouts = 7,29% de conversão</strong> — a maior taxa de checkout→VIP de todo o T3 no PT, com R$2.518 investidos e 865 leads. O funil terminou acelerando em todas as métricas. Bruno estava certo.</div>
+        </div>
+        <div style="background:rgba(255,59,59,0.06); border:1px solid rgba(255,59,59,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--red); margin-bottom:6px;">🌎 ESPANHOL — T3 TAMBÉM VENCE em CPL comunidade</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">CPL comunidade T3: <strong style="color:#00ff88;">R$2,74–R$3,20</strong> — o mais barato do período ES. Bruno está correto que o ES performou pior em VIP — apenas <strong style="color:#ffcc00;">14 compras no total (vs 43 no PT)</strong>. Dia 23/03: entrada na comunidade de <strong style="color:#00ff88;">64,6%</strong> — melhor taxa do ES em todo o período. VIP ainda fraco (2 em 40 checkouts = 5%). CPL cad subiu para R$2,07 com o aumento de investimento. O vencedor em CPL comunidade é o T3, mas a conversão VIP no ES precisa de atenção.</div>
+        </div>
+        <div style="background:rgba(255,204,0,0.06); border:1px solid rgba(255,204,0,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--yellow); margin-bottom:6px;">Sobre os "40 centavos de redução"</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">A VIP não gerou escala suficiente. PT teve 43 vendas VIP e ES apenas 14 — receita insuficiente para impactar o CPL líquido de forma expressiva. Confirma a análise do Bruno: <strong style="color:#ffcc00;">a VIP não reduziu o custo de forma considerável em nenhum dos testes.</strong></div>
+        </div>
+        <div style="background:rgba(0,255,136,0.1); border:1px solid rgba(0,255,136,0.3); border-radius:3px; padding:10px; text-align:center;">
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--green); font-weight:700;">VENCEDORES: T3 PT &nbsp;+&nbsp; T3 ES</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MENSAGEM 02 -->
+<div style="background:var(--card); border:1px solid var(--border); border-radius:4px; margin-bottom:16px; overflow:hidden;">
+  <div style="background:#0d0d0d; border-bottom:1px solid var(--border); padding:14px 20px; display:flex; align-items:center; gap:14px;">
+    <div style="background:rgba(255,204,0,0.15); border:1px solid rgba(255,204,0,0.3); border-radius:2px; padding:3px 10px; font-family:'Space Mono',monospace; font-size:10px; color:#ffcc00; font-weight:700;">MENSAGEM 02</div>
+    <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gray);">O CPL está bom (R$1–2). Como melhorar a entrada no grupo?</div>
+  </div>
+  <div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div>
+      <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--gray); letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;">Pergunta do Bruno</div>
+      <div style="font-size:13px; color:#aaa; line-height:1.7; font-style:italic; border-left:2px solid var(--border); padding-left:14px;">
+        "O lead na tabela, um e pouco, dois reais — está no preço muito bom. Tem que dar uma revisada em qual é a sequência de mensagens que a gente está mandando para essas pessoas entrarem no grupo. Porque se a gente consegue fazer isso com mais eficácia, fica melhor ainda."
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--green); letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;">→ Resposta baseada nos dados</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="background:rgba(0,255,136,0.06); border:1px solid rgba(0,255,136,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--green); margin-bottom:6px;">CPL está dentro do esperado — Bruno confirma</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">ES: CPL cadastro médio <strong style="color:#00ff88;">R$1,51</strong> ✓ — dentro do range R$1–2 que Bruno referenciou.<br>PT: CPL cadastro médio <strong style="color:#ffcc00;">R$2,33</strong> — ligeiramente acima do ideal, mas aceitável dado o mercado BR.</div>
+        </div>
+        <div style="background:rgba(255,59,59,0.06); border:1px solid rgba(255,59,59,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--red); margin-bottom:6px;">O gargalo: ~40% dos leads não entram na comunidade</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">
+            No melhor teste (T3):<br>
+            PT T3 (21–23/03): <strong style="color:#ff3b3b;">~813 leads fora do grupo</strong> — 35–40% por dia<br>
+            ES T3 (21–23/03): <strong style="color:#ff3b3b;">~538 leads fora do grupo</strong> — 35–41% por dia<br><br>
+            São ~1.351 leads que custaram R$1,57–R$2,91 e <strong style="color:#ffcc00;">nunca chegaram no grupo.</strong><br><br>
+            Positivo: PT 23/03 → 7 VIP em 96 checkouts (<strong style="color:#00ff88;">7,29%</strong>). ES 23/03 → entrada de <strong style="color:#00ff88;">64,6%</strong> na comunidade — melhor do período ES. A oferta funciona quando o lead chega ao grupo.
+          </div>
+        </div>
+        <div style="background:rgba(0,170,255,0.06); border:1px solid rgba(0,170,255,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:#00aaff; margin-bottom:6px;">Simulação: impacto de melhorar a entrada</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">
+            ES T3 hoje: 59% entrada → CPL comunidade R$2,74<br>
+            Se chegar a 75%: CPL comunidade cai para <strong style="color:#00ff88;">≈ R$2,15</strong> (-22%)<br>
+            Se chegar a 85%: CPL comunidade cai para <strong style="color:#00ff88;">≈ R$1,90</strong> (-31%)<br><br>
+            <strong style="color:#fff;">Melhorar a sequência de mensagens tem mais impacto no CPL comunidade do que reduzir o CPL de cadastro.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MENSAGEM 03 -->
+<div style="background:var(--card); border:1px solid var(--border); border-radius:4px; margin-bottom:16px; overflow:hidden;">
+  <div style="background:#0d0d0d; border-bottom:1px solid var(--border); padding:14px 20px; display:flex; align-items:center; gap:14px;">
+    <div style="background:rgba(170,102,255,0.15); border:1px solid rgba(170,102,255,0.3); border-radius:2px; padding:3px 10px; font-family:'Space Mono',monospace; font-size:10px; color:#aa66ff; font-weight:700;">MENSAGEM 03</div>
+    <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--gray);">Sequência do T3: o follow-up D+2 via Utility (API) está rodando?</div>
+  </div>
+  <div style="padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div>
+      <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--gray); letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;">Pergunta do Bruno</div>
+      <div style="font-size:13px; color:#aaa; line-height:1.7; font-style:italic; border-left:2px solid var(--border); padding-left:14px;">
+        "O Teste 3 vai se manter. A sequência é: cadastra → entra na comunidade → recebe mensagem sobre VIP. Depois, quem não entrou na comunidade precisa receber mensagem para entrar. E ainda assim, dois dias depois, um follow-up via Utility (API) para entrar no grupo. A Tati disse que tem o Utility (API) — só checar se está rodando e enviar."
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--gray); letter-spacing:2px; margin-bottom:10px; text-transform:uppercase;">Fluxo descrito pelo Bruno</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:#ccc; font-family:'Space Mono',monospace;">
+            <span style="background:rgba(0,255,136,0.15); color:#00ff88; padding:2px 8px; border-radius:2px; font-size:10px;">1</span> Cadastro na página
+          </div>
+          <div style="width:1px; height:10px; background:var(--border); margin-left:18px;"></div>
+          <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:#ccc; font-family:'Space Mono',monospace;">
+            <span style="background:rgba(0,255,136,0.15); color:#00ff88; padding:2px 8px; border-radius:2px; font-size:10px;">2</span> Página de obrigado → entra na comunidade
+          </div>
+          <div style="width:1px; height:10px; background:var(--border); margin-left:18px;"></div>
+          <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:#ccc; font-family:'Space Mono',monospace;">
+            <span style="background:rgba(0,255,136,0.15); color:#00ff88; padding:2px 8px; border-radius:2px; font-size:10px;">3</span> API envia mensagem sobre Experiência VIP
+          </div>
+          <div style="width:1px; height:10px; background:var(--border); margin-left:18px;"></div>
+          <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:#ffcc00; font-family:'Space Mono',monospace;">
+            <span style="background:rgba(255,204,0,0.15); color:#ffcc00; padding:2px 8px; border-radius:2px; font-size:10px;">4</span> Quem NÃO entrou → mensagem para entrar
+          </div>
+          <div style="width:1px; height:10px; background:var(--border); margin-left:18px;"></div>
+          <div style="display:flex; align-items:center; gap:10px; font-size:12px; color:#ff3b3b; font-family:'Space Mono',monospace;">
+            <span style="background:rgba(255,59,59,0.15); color:#ff3b3b; padding:2px 8px; border-radius:2px; font-size:10px;">5</span> D+2: follow-up via Utility (API) → link do grupo
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--green); letter-spacing:2px; margin-bottom:12px; text-transform:uppercase;">→ Resposta baseada nos dados</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="background:rgba(255,59,59,0.06); border:1px solid rgba(255,59,59,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--red); margin-bottom:6px;">Volume de leads que não entraram no grupo (T3)</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.7;">
+            <strong style="color:#fff;">PT Teste 3 (21, 22, 23/03):</strong><br>
+            21/03: 626 leads → 369 no grupo = <strong style="color:#ff3b3b;">257 fora (41%)</strong><br>
+            22/03: 1.471 leads → 953 no grupo = <strong style="color:#ff3b3b;">518 fora (35%)</strong><br>
+            23/03: 381 leads → 196 no grupo = <strong style="color:#ff3b3b;">185 fora (49%)</strong><br>
+            <strong style="color:#ffcc00;">Total fora: ~960 leads PT que precisam do follow-up</strong><br><br>
+            <strong style="color:#fff;">ES Teste 3 (21, 22, 23/03):</strong><br>
+            21/03: 626 leads → 369 no grupo = <strong style="color:#ff3b3b;">257 fora (41%)</strong><br>
+            22/03: 690 leads → 409 no grupo = <strong style="color:#ff3b3b;">281 fora (41%)</strong><br>
+            23/03: 204 leads → 117 no grupo = <strong style="color:#ff3b3b;">87 fora (43%)</strong><br>
+            <strong style="color:#ffcc00;">Total fora: ~625 leads ES que precisam do follow-up</strong>
+          </div>
+        </div>
+        <div style="background:rgba(255,204,0,0.06); border:1px solid rgba(255,204,0,0.2); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--yellow); margin-bottom:6px;">O que os dados dizem sobre o Utility (API)</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.6;">Os dados <strong style="color:#ffcc00;">não confirmam nem descartam</strong> se o Utility (API) está rodando — isso exige verificação técnica direta na ferramenta. Mas a taxa de 40% de leads fora do grupo, mesmo no melhor teste, é um sinal de que <strong style="color:#fff;">a automação de resgate precisa ser validada.</strong><br><br>Ponto positivo: ES 23/03 registrou 2 VIP com 29 cliques = <strong style="color:#00ff88;">6,9% de conversão</strong> — a melhor taxa do T3 no ES, sugerindo que a oferta funciona quando o lead é bem conduzido.</div>
+        </div>
+        <div style="background:rgba(255,59,59,0.1); border:1px solid rgba(255,59,59,0.3); border-radius:3px; padding:12px;">
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--red); margin-bottom:8px; font-weight:700;">⚡ AÇÃO IMEDIATA — 3 verificações obrigatórias</div>
+          <div style="font-size:12px; color:#ccc; line-height:1.8;">
+            <span style="color:#00ff88;">✓</span> <strong style="color:#fff;">Verificar com Tati</strong> se o Utility (API) está ativo e enviando<br>
+            <span style="color:#00ff88;">✓</span> <strong style="color:#fff;">Confirmar se a mensagem de "entre na comunidade"</strong> está sendo disparada para quem não entrou (passo 4 do fluxo)<br>
+            <span style="color:#00ff88;">✓</span> <strong style="color:#fff;">Configurar o follow-up D+2</strong> — se não está rodando, há ~1.585 leads (PT + ES) aguardando esse contato que nunca chegou
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  SNS 03 SUPER ÁGUIAS &nbsp;|&nbsp; FUNIL ANÁLISE &nbsp;|&nbsp; PERÍODO 17/03 → 23/03/2026 &nbsp;|&nbsp; ATUALIZADO EM 24/03/2026
+</div>
+
+<script>
+let isDark = true;
+let chartCPLPT, chartCPLES, chartVolPT, chartVolES, chartTaxaCom;
+
+function getTheme() {
+  return isDark ? {
+    grid: 'rgba(255,255,255,0.04)',
+    tick: '#555',
+    legend: '#666',
+    tooltipBg: '#111111',
+    tooltipBorder: '#333333',
+    tooltipTitle: '#ffffff',
+    tooltipBody: '#aaaaaa',
+  } : {
+    grid: 'rgba(0,0,0,0.07)',
+    tick: '#888',
+    legend: '#555',
+    tooltipBg: '#ffffff',
+    tooltipBorder: '#dddddd',
+    tooltipTitle: '#111111',
+    tooltipBody: '#555555',
+  };
+}
+
+function applyThemeToChart(chart) {
+  const t = getTheme();
+  chart.options.plugins.legend.labels.color = t.legend;
+  chart.options.plugins.tooltip.backgroundColor = t.tooltipBg;
+  chart.options.plugins.tooltip.borderColor = t.tooltipBorder;
+  chart.options.plugins.tooltip.titleColor = t.tooltipTitle;
+  chart.options.plugins.tooltip.bodyColor = t.tooltipBody;
+  if (chart.options.scales.x) {
+    chart.options.scales.x.ticks.color = t.tick;
+    chart.options.scales.x.grid.color = t.grid;
+  }
+  if (chart.options.scales.y) {
+    chart.options.scales.y.ticks.color = t.tick;
+    chart.options.scales.y.grid.color = t.grid;
+  }
+  chart.update();
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('toggleTrack').classList.toggle('on', !isDark);
+  document.getElementById('themeLabel').textContent = isDark ? 'MODO DIURNO' : 'MODO NOTURNO';
+  [chartCPLPT, chartCPLES, chartVolPT, chartVolES, chartTaxaCom].forEach(applyThemeToChart);
+}
+
+const dias = ['17/03','18/03','19/03','20/03','21/03','22/03','23/03'];
+const testes = ['T1','T1','T2','T2→T3','T3','T3','T3'];
+
+const ptCPLcad = [1.98, 2.20, 2.02, 2.34, 2.10, 2.83, 2.77];
+const ptCPLcom = [4.94, 4.88, 15.00, 6.68, 3.23, 4.36, 4.40];
+const esCPLcad = [1.26, 1.49, 1.50, 1.73, 1.61, 1.65, 1.98];
+const esCPLcom = [5.05, 2.94, 14.03, 4.08, 2.74, 2.79, 3.10];
+
+const ptLeads = [846, 1227, 982, 839, 998, 1471, 1454];
+const ptCom   = [339, 552, 132, 294, 649, 953, 916];
+const ptVIP   = [4, 4, 10, 5, 4, 9, 7];
+
+const esLeads = [846, 591, 588, 670, 626, 690, 787];
+const esCom   = [212, 300, 63, 251, 369, 409, 502];
+const esVIP   = [0, 4, 5, 1, 2, 0, 4];
+
+const ptTaxaCom = ptLeads.map((l,i) => +(ptCom[i]/l*100).toFixed(1));
+const esTaxaCom = esLeads.map((l,i) => +(esCom[i]/l*100).toFixed(1));
+
+// Background colors by test
+const bgByDay = [
+  'rgba(0,170,255,0.15)',  // T1
+  'rgba(0,170,255,0.15)',  // T1
+  'rgba(255,204,0,0.15)',  // T2
+  'rgba(170,102,255,0.15)',// T2→T3
+  'rgba(0,255,136,0.15)',  // T3
+  'rgba(0,255,136,0.15)',  // T3
+  'rgba(0,255,136,0.15)',  // T3
+];
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      labels: { color: '#666', font: { family: 'Space Mono', size: 10 } }
+    },
+    tooltip: {
+      backgroundColor: '#111',
+      borderColor: '#333',
+      borderWidth: 1,
+      titleColor: '#fff',
+      bodyColor: '#aaa',
+      titleFont: { family: 'Space Mono' },
+      bodyFont: { family: 'Space Mono', size: 11 },
+    }
+  },
+  scales: {
+    x: {
+      ticks: { color: '#555', font: { family: 'Space Mono', size: 9 } },
+      grid: { color: 'rgba(255,255,255,0.04)' }
+    },
+    y: {
+      ticks: { color: '#555', font: { family: 'Space Mono', size: 9 } },
+      grid: { color: 'rgba(255,255,255,0.04)' }
+    }
+  }
+};
+
+// PT CPL Chart
+chartCPLPT = new Chart(document.getElementById('cplPT'), {
+  type: 'bar',
+  data: {
+    labels: dias,
+    datasets: [
+      {
+        label: 'CPL Cadastro',
+        data: ptCPLcad,
+        backgroundColor: 'rgba(0,170,255,0.5)',
+        borderColor: '#00aaff',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'CPL Comunidade',
+        data: ptCPLcom,
+        backgroundColor: 'rgba(255,59,59,0.4)',
+        borderColor: '#ff3b3b',
+        borderWidth: 1,
+        borderRadius: 2,
+      }
+    ]
+  },
+  options: { ...chartDefaults }
+});
+
+// ES CPL Chart
+chartCPLES = new Chart(document.getElementById('cplES'), {
+  type: 'bar',
+  data: {
+    labels: dias,
+    datasets: [
+      {
+        label: 'CPL Cadastro',
+        data: esCPLcad,
+        backgroundColor: 'rgba(170,102,255,0.5)',
+        borderColor: '#aa66ff',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'CPL Comunidade',
+        data: esCPLcom,
+        backgroundColor: 'rgba(255,59,59,0.4)',
+        borderColor: '#ff3b3b',
+        borderWidth: 1,
+        borderRadius: 2,
+      }
+    ]
+  },
+  options: { ...chartDefaults }
+});
+
+// PT Volume
+chartVolPT = new Chart(document.getElementById('volPT'), {
+  type: 'bar',
+  data: {
+    labels: dias,
+    datasets: [
+      {
+        label: 'Leads Cadastrados',
+        data: ptLeads,
+        backgroundColor: 'rgba(0,170,255,0.4)',
+        borderColor: '#00aaff',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'Na Comunidade',
+        data: ptCom,
+        backgroundColor: 'rgba(0,255,136,0.4)',
+        borderColor: '#00ff88',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'VIP (×10)',
+        data: ptVIP.map(v => v * 10),
+        backgroundColor: 'rgba(255,204,0,0.5)',
+        borderColor: '#ffcc00',
+        borderWidth: 1,
+        borderRadius: 2,
+      }
+    ]
+  },
+  options: { ...chartDefaults }
+});
+
+// ES Volume
+chartVolES = new Chart(document.getElementById('volES'), {
+  type: 'bar',
+  data: {
+    labels: dias,
+    datasets: [
+      {
+        label: 'Leads Cadastrados',
+        data: esLeads,
+        backgroundColor: 'rgba(170,102,255,0.4)',
+        borderColor: '#aa66ff',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'Na Comunidade',
+        data: esCom,
+        backgroundColor: 'rgba(0,255,136,0.4)',
+        borderColor: '#00ff88',
+        borderWidth: 1,
+        borderRadius: 2,
+      },
+      {
+        label: 'VIP (×10)',
+        data: esVIP.map(v => v * 10),
+        backgroundColor: 'rgba(255,204,0,0.5)',
+        borderColor: '#ffcc00',
+        borderWidth: 1,
+        borderRadius: 2,
+      }
+    ]
+  },
+  options: { ...chartDefaults }
+});
+
+// Taxa Comunidade
+chartTaxaCom = new Chart(document.getElementById('taxaCom'), {
+  type: 'line',
+  data: {
+    labels: dias,
+    datasets: [
+      {
+        label: '% Entrada PT',
+        data: ptTaxaCom,
+        borderColor: '#00aaff',
+        backgroundColor: 'rgba(0,170,255,0.08)',
+        tension: 0.3,
+        pointBackgroundColor: '#00aaff',
+        pointRadius: 4,
+        fill: true,
+      },
+      {
+        label: '% Entrada ES',
+        data: esTaxaCom,
+        borderColor: '#aa66ff',
+        backgroundColor: 'rgba(170,102,255,0.08)',
+        tension: 0.3,
+        pointBackgroundColor: '#aa66ff',
+        pointRadius: 4,
+        fill: true,
+      },
+      {
+        label: 'Meta 50%',
+        data: Array(7).fill(50),
+        borderColor: 'rgba(255,204,0,0.4)',
+        borderDash: [5,5],
+        pointRadius: 0,
+        fill: false,
+      }
+    ]
+  },
+  options: {
+    ...chartDefaults,
+    scales: {
+      ...chartDefaults.scales,
+      y: {
+        ...chartDefaults.scales.y,
+        min: 0,
+        max: 100,
+        ticks: {
+          color: '#555',
+          font: { family: 'Space Mono', size: 9 },
+          callback: v => v + '%'
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
